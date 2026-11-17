@@ -7,6 +7,7 @@ import os
 from PIL import Image, ImageDraw
 from world import CHECK, GW, GH, W, H, grade
 from assets import draw_kevin, draw_mulyadi
+from v3_effects import v3_active
 
 PROJ = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(PROJ, "cues-v2.json"), encoding="utf-8") as _fh:
@@ -92,15 +93,21 @@ def get_subject_color(world, subject, seg_name=None):
     return COL_WHITE
 
 def get_active_mode(t_abs):
+    if v3_active(t_abs):
+        return None
     for m in MODES:
         if m["t0"] <= t_abs < m["t1"]:
             return m
     return None
 
 def get_active_markers(t_abs):
+    if v3_active(t_abs):
+        return []
     return [m for m in MARKERS if m["t"] <= t_abs < m["t"] + 4.0]
 
 def get_active_chips(t_abs):
+    if v3_active(t_abs):
+        return []
     return [c for c in CHIPS if c["t"] <= t_abs < c["t"] + c.get("dur", 4.0)]
 
 class CameraController:
@@ -117,6 +124,8 @@ class CameraController:
         self.last_key = None
 
     def _compute_target(self, t_abs, world, seg, active_markers):
+        if v3_active(t_abs):
+            return (("wide",), 320.0, 180.0, 1.0)
         name = seg["name"]
         # Direktif khusus s19 (counterfactual)
         if name == "s19_eksperimen":
@@ -305,6 +314,8 @@ def _draw_stamp_badge(full, text, dt, dur, font_banner, y_top=90):
 
 
 def draw_stamps(full, t_abs, font_banner):
+    if v3_active(t_abs):
+        return full
     for s in STAMPS:
         dt = t_abs - s["t"]
         dur = s["dur"]
@@ -315,6 +326,8 @@ def draw_stamps(full, t_abs, font_banner):
 
 
 def draw_migrant_counter(full, t_abs, font_pop):
+    if v3_active(t_abs):
+        return full
     for c in COUNTERS:
         if c["t0"] <= t_abs <= c["t1"]:
             p = (t_abs - c["t0"]) / max(0.01, c["t1"] - c["t0"])

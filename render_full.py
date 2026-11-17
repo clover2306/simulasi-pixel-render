@@ -12,6 +12,7 @@ from v2_effects import (CameraController, get_active_mode, get_active_markers,
                         get_active_chips, draw_markers, draw_stamps,
                         draw_migrant_counter, render_showcase,
                         render_split_fields, render_chart)
+from v3_effects import get_moment, render_v3_frame
 
 PROJ = os.path.dirname(os.path.abspath(__file__))
 SEGDIR = os.path.join(PROJ, "segments")
@@ -112,6 +113,23 @@ def render_map(seg, enc, nframes):
             popup_ds, popup_dt = sl - prev_scores[0], sr - prev_scores[1]
             popup_until = f + 18
         prev_scores = (sl, sr)
+
+        moment = get_moment(t_abs)
+        if moment:
+            if moment["kind"] == "mg":
+                grid_img = world.render_grid(f, yf)
+                cam.update(t_abs, world, seg, [])
+                bg_full, _ = world.apply_camera(grid_img, 320.0, 180.0, 1.0)
+                bg_full = grade(bg_full)
+                full = render_v3_frame(moment, t_abs, bg_img=bg_full)
+            else:
+                world.step_only(f, yf)
+                cam.update(t_abs, world, seg, [])
+                full = render_v3_frame(moment, t_abs)
+            fd = ImageDraw.Draw(full)
+            draw_hud(fd, max(1, min(20, round(yf))), sl, sr, FONT_HUD, FONT_LBL, show_side_labels=False)
+            enc.stdin.write(full.tobytes())
+            continue
 
         mode = get_active_mode(t_abs)
         active_markers = get_active_markers(t_abs)
@@ -388,54 +406,20 @@ def render_grid(seg, enc, nframes):
                                     fill=(255, 220, 120), outline=(255, 240, 180), width=2)
                 tw2 = d.textlength(layers[i], font=FONT_POP)
                 d.text((x + (190 - tw2) / 2, 690 - 34), layers[i], font=FONT_POP, fill=(30, 24, 20))
+        moment = get_moment(t_abs)
+        if moment:
+            img = render_v3_frame(moment, t_abs, bg_img=img)
         enc.stdin.write(img.tobytes())
 
 # ---------------- Ujang dua kali ----------------
 def render_split(seg, enc, nframes):
-    uj = ujang_frames()[0].resize((48, 78), Image.NEAREST)
-    pump_big = PUMP.resize((66, 66), Image.NEAREST)
     for f in range(nframes):
         t_abs = seg["t0"] + f / FPS
-        img = Image.new("RGB", (W, H), (0, 0, 0))
-        d = ImageDraw.Draw(img)
-        # kiri: hijau terang + pompa
-        d.rectangle([0, 0, W // 2, H], fill=(110, 178, 82))
-        for i in range(200):
-            x, y = (i * 37) % (W // 2), 100 + (i * 53) % 560
-            d.point((x, y), fill=(96, 164, 70))
-        img.paste(pump_big, (120, 300), pump_big)
-        img.paste(uj, (W // 4 - 24, 300), uj)
-        # kanan: kering + retak
-        d.rectangle([W // 2, 0, W, H], fill=(188, 160, 100))
-        for i in range(12):
-            x, y = W // 2 + 60 + (i * 47) % 500, 140 + (i * 61) % 480
-            d.line([(x, y), (x + 18, y + 8), (x + 10, y + 22)], fill=(150, 122, 78))
-        img.paste(uj, (3 * W // 4 - 24, 300), uj)
-        d.rectangle([W // 2 - 4, 0, W // 2 + 4, H], fill=(20, 18, 16))
-        d.rectangle([0, 0, W // 2 - 4, H - 1], outline=(255, 220, 120), width=4)
-        d.rectangle([W // 2 + 4, 0, W - 1, H - 1], outline=(140, 230, 140), width=4)
-        text_outline(d, (60, 40), "UJANG DI SINARBARU", FONT_Q, (255, 255, 255))
-        text_outline(d, (W // 2 + 60, 40), "SEANDAINYA TAK MENYEBERANG", FONT_Q, (255, 255, 255))
-        # chip judul atas tengah
-        chip_t = "HIDUP UJANG DUA KALI"
-        ctw = int(d.textlength(chip_t, font=FONT_SUB))
-        cx0 = (W - ctw - 32) // 2
-        d.rounded_rectangle([cx0, 78, cx0 + ctw + 32, 114], radius=10,
-                            fill=(20, 18, 16), outline=(255, 220, 120), width=2)
-        d.text((cx0 + 16, 87), chip_t, font=FONT_SUB, fill=(255, 240, 200))
-        caps_l = [(579.32, "Mekanik paling dicari di dua desa"),
-                  (585.36, "Kirim uang ke ibunya tiap bulan")]
-        caps_r = [(591.22, "Tetap petani dengan cangkul"),
-                  (596.72, "Panen setengah, ibu menunggu")]
-        for (ct, txt) in caps_l:
-            if t_abs >= ct:
-                text_outline(d, (60, 480 + caps_l.index((ct, txt)) * 44), "> " + txt,
-                             FONT_SUB, (255, 240, 200))
-        for (ct, txt) in caps_r:
-            if t_abs >= ct:
-                text_outline(d, (W // 2 + 60, 480 + caps_r.index((ct, txt)) * 44), "X " + txt,
-                             FONT_SUB, (255, 220, 210))
-        enc.stdin.write(img.tobytes())
+        moment = get_moment(min(t_abs, seg["t1"] - 1e-4))
+        full = render_v3_frame(moment, t_abs)
+        fd = ImageDraw.Draw(full)
+        draw_hud(fd, 20, 88, 56, FONT_HUD, FONT_LBL, show_side_labels=False)
+        enc.stdin.write(full.tobytes())
 
 # ---------------- eksperimen balik ----------------
 def render_counter(seg, enc, nframes):
@@ -447,11 +431,18 @@ def render_counter(seg, enc, nframes):
         sl = round(74 + (90 - 74) * frac)
         sr = round(38 + (74 - 38) * frac)
         grid_img = world.render_grid(f, 20, counterfactual=True)
-        active_markers = get_active_markers(t_abs)
-        cx, cy, zm = cam.update(t_abs, world, seg, active_markers)
-        full, crop_box = world.apply_camera(grid_img, cx, cy, zm)
-        full = grade(full)
-        full = draw_markers(full, world, t_abs, crop_box, active_markers, [], V2_FONTS, seg["name"])
+        moment = get_moment(t_abs)
+        if moment:
+            cam.update(t_abs, world, seg, [])
+            bg_full, _ = world.apply_camera(grid_img, 320.0, 180.0, 1.0)
+            bg_full = grade(bg_full)
+            full = render_v3_frame(moment, t_abs, bg_img=bg_full)
+        else:
+            active_markers = get_active_markers(t_abs)
+            cx, cy, zm = cam.update(t_abs, world, seg, active_markers)
+            full, crop_box = world.apply_camera(grid_img, cx, cy, zm)
+            full = grade(full)
+            full = draw_markers(full, world, t_abs, crop_box, active_markers, [], V2_FONTS, seg["name"])
         fd = ImageDraw.Draw(full)
         fd.rectangle([0, 0, W, 40], fill=(20, 18, 16))
         text_outline(fd, (24, 7), f"SINARBARU  {sl}", FONT_HUD, (255, 220, 120))
@@ -461,7 +452,7 @@ def render_counter(seg, enc, nframes):
         text_outline(fd, ((W - tw) / 2, 9), t, FONT_LBL, (255, 255, 255))
         fd.rectangle([24, 44, 24 + sl * 3, 50], fill=(255, 220, 120))
         fd.rectangle([W - 24 - sr * 3, 44, W - 24, 50], fill=(140, 230, 140))
-        if t_abs >= 617.98:
+        if not moment and t_abs >= 617.98:
             full = draw_banner(full, "TANPA EKSODUS - SELISIH 32 JADI 16 POIN", FONT_BANNER)
         enc.stdin.write(full.tobytes())
 
