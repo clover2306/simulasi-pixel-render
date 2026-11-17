@@ -1,0 +1,274 @@
+{
+ "_note": "Cue v2, waktu detik absolut narasi (dari transcript_words.json, sudah diverifikasi lawan naskah.md). Marker durasi default 4.0 dtk. Jangan pakai cue di dalam segmen dialog (307.38-324.65, 415.44-434.46, 524.68-537.92) — dialog punya UI sendiri.",
+ "markers": [
+  {
+   "subject": "kevin",
+   "t": 14.02
+  },
+  {
+   "subject": "mulyadi",
+   "t": 23.62
+  },
+  {
+   "subject": "kevin",
+   "t": 74.78
+  },
+  {
+   "subject": "pompa",
+   "t": 75.46
+  },
+  {
+   "subject": "bibit",
+   "t": 76.5
+  },
+  {
+   "subject": "penggilingan",
+   "t": 77.44
+  },
+  {
+   "subject": "mulyadi",
+   "t": 78.76
+  },
+  {
+   "subject": "kevin",
+   "t": 86.12
+  },
+  {
+   "subject": "mulyadi",
+   "t": 89.44
+  },
+  {
+   "subject": "kevin",
+   "t": 99.14
+  },
+  {
+   "subject": "mulyadi",
+   "t": 104.78
+  },
+  {
+   "subject": "kevin",
+   "t": 133.28
+  },
+  {
+   "subject": "pompa",
+   "t": 136.32
+  },
+  {
+   "subject": "bibit",
+   "t": 138.08
+  },
+  {
+   "subject": "mulyadi",
+   "t": 144.78
+  },
+  {
+   "subject": "pompa",
+   "t": 157.74
+  },
+  {
+   "subject": "kevin",
+   "t": 191.52
+  },
+  {
+   "subject": "pompa",
+   "t": 197.92
+  },
+  {
+   "subject": "pompa",
+   "t": 207.1
+  },
+  {
+   "subject": "mulyadi",
+   "t": 221.82
+  },
+  {
+   "subject": "kevin",
+   "t": 246.18
+  },
+  {
+   "subject": "penggilingan",
+   "t": 246.92
+  },
+  {
+   "subject": "mulyadi",
+   "t": 257.68
+  },
+  {
+   "subject": "ujang",
+   "t": 268.44
+  },
+  {
+   "subject": "jembatan",
+   "t": 274.0
+  },
+  {
+   "subject": "pompa",
+   "t": 280.0
+  },
+  {
+   "subject": "ujang",
+   "t": 282.26
+  },
+  {
+   "subject": "sari",
+   "t": 295.22
+  },
+  {
+   "subject": "pompa",
+   "t": 300.7
+  },
+  {
+   "subject": "sungai",
+   "t": 334.64
+  },
+  {
+   "subject": "pompa",
+   "t": 337.92
+  },
+  {
+   "subject": "kevin",
+   "t": 345.8
+  },
+  {
+   "subject": "mulyadi",
+   "t": 349.26
+  },
+  {
+   "subject": "jembatan",
+   "t": 389.68
+  },
+  {
+   "subject": "mulyadi",
+   "t": 437.04
+  },
+  {
+   "subject": "pompa_rahasia",
+   "t": 438.3
+  },
+  {
+   "subject": "pompa_rahasia",
+   "t": 443.94
+  },
+  {
+   "subject": "pompa",
+   "t": 462.6
+  },
+  {
+   "subject": "kevin",
+   "t": 477.22
+  },
+  {
+   "subject": "pasar",
+   "t": 491.78
+  },
+  {
+   "subject": "ujang",
+   "t": 493.78
+  },
+  {
+   "subject": "pompa",
+   "t": 494.66
+  },
+  {
+   "subject": "sari",
+   "t": 495.78
+  },
+  {
+   "subject": "kevin",
+   "t": 502.98
+  },
+  {
+   "subject": "mulyadi",
+   "t": 502.98
+  },
+  {
+   "subject": "mulyadi",
+   "t": 515.54
+  },
+  {
+   "subject": "kevin",
+   "t": 554.78
+  },
+  {
+   "subject": "pompa",
+   "t": 605.66
+  },
+  {
+   "subject": "pompa",
+   "t": 626.6
+  },
+  {
+   "subject": "penggilingan",
+   "t": 628.92
+  }
+ ],
+ "stamps": [
+  {
+   "dur": 3.0,
+   "t": 157.74,
+   "text": "RUSAK MELULU"
+  },
+  {
+   "dur": 3.5,
+   "t": 224.36,
+   "text": "KEBERUNTUNGAN SEMUSIM"
+  },
+  {
+   "dur": 3.0,
+   "t": 351.0,
+   "text": "MENOLAK!"
+  },
+  {
+   "dur": 4.0,
+   "t": 398.44,
+   "text": "SEPARUH WARGA PINDAH"
+  },
+  {
+   "dur": 5.0,
+   "t": 462.6,
+   "text": "1 POMPA = 10 ORANG MENIMBA"
+  }
+ ],
+ "modes": [
+  {
+   "kind": "showcase",
+   "t0": 12.8,
+   "t1": 22.28,
+   "who": "kevin"
+  },
+  {
+   "kind": "showcase",
+   "t0": 22.44,
+   "t1": 32.38,
+   "who": "mulyadi"
+  },
+  {
+   "kind": "split_fields",
+   "t0": 235.22,
+   "t1": 244.14
+  },
+  {
+   "kind": "chart",
+   "t0": 548.96,
+   "t1": 566.96
+  }
+ ],
+ "counters": [
+  {
+   "from": 0,
+   "kind": "migrants",
+   "label": "KELUARGA PINDAH",
+   "t0": 375.88,
+   "t1": 415.42,
+   "to": 50
+  }
+ ],
+ "chips": [
+  {
+   "attach": "mulyadi",
+   "dur": 4.0,
+   "t": 515.54,
+   "text": "88 TAHUN"
+  }
+ ]
+}

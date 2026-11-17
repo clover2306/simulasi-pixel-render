@@ -1,0 +1,77 @@
+name: Render segmen simulasi pixel
+
+# Render segmen video pixel-art (Python + PIL, 1280x720, 30fps, tanpa audio)
+# dalam job paralel per segmen. Audio (narasi + BGM + SFX) dan caption
+# digabung secara lokal oleh Clover; audio tidak masuk repo.
+# Input segments memungkinkan render ulang sebagian segmen saja.
+on:
+  workflow_dispatch:
+    inputs:
+      segments:
+        description: 'Segment names, comma-separated (default: all 21)'
+        required: false
+        default: 's01_coldopen,s02_aturan,s03_tahun12,s04_tahun34,s05_tahun56,s06_tahun7,s07_dialog1,s08_jembatan1,s09_tahun910,s10_taruhan_twist,s11_dialog2,s12_tahun1314,s13_tahun1517,s14_tahun18,s15_dialog3,s16_tahun19,s17_tahun20,s18_ujang,s19_eksperimen,s20_seratus,s21_penutup'
+
+jobs:
+  plan:
+    name: Plan matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.mk.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute segment matrix
+        id: mk
+        env:
+          SEGS: ${{ inputs.segments }}
+        run: |
+          python3 - <<'PYEOF'
+          import json, os
+          segs = [s.strip() for s in os.environ["SEGS"].split(",") if s.strip()]
+          inc = [{"segment": s} for s in segs]
+          out = open(os.environ["GITHUB_OUTPUT"], "a")
+          out.write("matrix=" + json.dumps({"include": inc}) + "\n")
+          out.close()
+          PYEOF
+
+  render:
+    name: Render ${{ matrix.segment }}
+    needs: plan
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Pillow
+        run: pip install pillow
+
+      - name: Ensure ffmpeg
+        run: |
+          ffmpeg -version || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
+      - name: Place pixel font where world.py expects it
+        run: |
+          mkdir -p ~/workspace/fonts
+          cp fonts/PressStart2P-Regular.ttf ~/workspace/fonts/
+
+      - name: Render segment
+        run: |
+          python3 render_full.py --segment ${{ matrix.segment }}
+          ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 segments/${{ matrix.segment }}.mp4
+
+      - name: Upload segment (silent, audio muxed locally)
+        uses: actions/upload-artifact@v4
+        with:
+          name: seg-${{ matrix.segment }}
+          path: segments/${{ matrix.segment }}.mp4
+          retention-days: 7
